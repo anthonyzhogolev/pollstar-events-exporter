@@ -6,7 +6,9 @@
     "version": "0.1.0",
     "description": "Exports Pollstar events list to CSV file",
     "permissions": [
-        "tabs"
+        "tabs",
+        "webRequest",
+        "*://cloud.pollstar.com/api/*"
     ],
     "background": {
         "scripts": [            
