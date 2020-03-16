@@ -1,14 +1,18 @@
 function showFilters(filters) {
   const filterListElement = document.querySelector("#filtersList");
   filterListElement.innerHTML = "";
+  const runBtn = document.querySelector(".js-run-btn");
+  runBtn.setAttribute("disabled", "disabled");
   if (filters) {
     filters.map(filterName => {
       const chip = document.createElement("span");
       chip.className = "mdl-chip";
+      chip.style.margin = "0 5px 2px 0";
       const chipText = document.createElement("span");
       chipText.className = "mdl-chip__text";
       chipText.innerText = filterName;
       chip.appendChild(chipText);
+
       filterListElement.appendChild(chip);
     });
   } else {
@@ -19,13 +23,12 @@ function showFilters(filters) {
 function showDownloadLink(url) {
   const container = document.createElement("div");
   const downloadLink = document.createElement("a");
-  
+
   downloadLink.download = "my.csv";
   downloadLink.href = url;
-  downloadLink.className =
-    "mdl-button mdl-js-button mdl-button--primary";
-  
-  downloadLink.style.margin="0 5px";
+  downloadLink.className = "mdl-button mdl-js-button mdl-button--primary";
+
+  downloadLink.style.margin = "0 5px";
 
   // const downloadIcon = document.createElement("i");
   // downloadIcon.className = "material-icons";
@@ -33,7 +36,7 @@ function showDownloadLink(url) {
   // downloadLink.appendChild(downloadIcon);
 
   downloadLink.innerText = "Download";
-  
+
   const actionsContainer = document.querySelector(".actions-container");
   container.appendChild(downloadLink);
   actionsContainer.appendChild(container);
@@ -41,8 +44,11 @@ function showDownloadLink(url) {
 
 function showTotalRows(totalRows) {
   const el = document.querySelector(".js-total-row");
+
   if (totalRows) {
     el.innerHTML = totalRows + " events";
+    const runBtn = document.querySelector(".js-run-btn");
+    runBtn.removeAttribute("disabled");
   } else {
     el.innerHTML = "...";
   }
@@ -50,7 +56,7 @@ function showTotalRows(totalRows) {
 
 document.addEventListener("DOMContentLoaded", () => {
   //get filters from storage and show chips in popup
-  chrome.storage.sync.get(["filters", "totalRows"], result => {    
+  chrome.storage.sync.get(["filters", "totalRows"], result => {
     showFilters(result.filters);
     showTotalRows(result.totalRows);
   });
