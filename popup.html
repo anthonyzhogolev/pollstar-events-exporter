@@ -5,30 +5,13 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
     />
-    <!-- <link
-      rel="stylesheet"
-      href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css"
-    /> -->
+
     <link
       rel="stylesheet"
       href="https://code.getmdl.io/1.3.0/material.indigo-yellow.min.css"
     />
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script>
-      chrome.runtime.onMessage.addListener(function(
-        request,
-        sender,
-        sendResponse
-      ) {
-        console.log(
-          sender.tab
-            ? "from a content script:" + sender.tab.url
-            : "from the extension"
-        );
-       console.log('request',request);
-        sendResponse({ farewell: "goodbye" });
-      });
-    </script>
+    <script src="js/popup.js"></script>
     <meta charset="utf-8" />
     <title>Pollstar Exporter</title>
   </head>
@@ -38,9 +21,9 @@
         Pollstar Exporter
       </div>
 
-      <div class="mdl-card__supporting-text">
-        <span class="mdl-chip">
-          <span class="mdl-chip__text">Basic Chip</span>
+      <div id="filtersList" class="mdl-card__supporting-text">
+        <span class="mdl-chip ">
+          <span class="mdl-chip__text ">Basic Chip</span>
         </span>
         <span class="mdl-chip">
           <span class="mdl-chip__text">Basic Chip</span>
@@ -49,12 +32,22 @@
           <span class="mdl-chip__text">Basic Chip</span>
         </span>
       </div>
+      <div class="mdl-card__supporting-text js-total-row">-</div>
       <div class="mdl-card__actions">
-        <button
-          class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab"
-        >
-          <i class="material-icons">add</i>
-        </button>
+        <div class="actions-container" style="display: flex;">
+          <div>
+            <button
+              class="mdl-button js-run-btn mdl-js-button mdl-button--raised mdl-button--colored"
+            >
+              Export
+            </button>
+            <div
+              class="mdl-spinner mdl-js-spinner is-active"
+              style="display: none;"
+            ></div>
+          </div>
+          
+        </div>
       </div>
     </div>
   </body>

@@ -1,29 +1,71 @@
-function getParameterByName(queryString, name) {
-    // Escape special RegExp characters
-    name = name.replace(/[[^$.|?*+(){}\\]/g, '\\$&');
-    // Create Regular expression
-    var regex = new RegExp("(?:[?&]|^)" + name + "=([^&#]*)");
-    // Attempt to get a match
-    var results = regex.exec(queryString);
-    console.log(results);
-    return decodeURIComponent(results[1].replace(/\+/g, " ")) || '';
-}
+(() => {
+  //bind with popup
+  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (!request.cmd) {
+      return;
+    }
+    switch (request.cmd) {
+      case "runExport":        
 
-(function(){
-    console.log('start background script 22323');
-    chrome.webRequest.onBeforeRequest.addListener(
-        function(details) { 
-            console.log('request is maded',details);    
-            
-            const filters = getParameterByName(details.url,'filter').split(/,(?=\w)/).map(item=>item.replace(/(\w*==)/,''));
-            console.log('filters',filters);
-            chrome.runtime.sendMessage({filters: filters}, function(response) {
-                console.log('response',response);
+        chrome.storage.sync.set({ loadedEvents: [] }, () => {
+          chrome.storage.sync.get(["url", "headers", "totalPages"], result => {
+            const { url, headers, totalPages } = result;
+            const requestData = new RequestData(url, headers);
+            fetchEvents(requestData, totalPages, events => {
+              //saving events to indexed db
+              let requests = [];
+              connectDB(db => {
+                const tx = db.transaction(["eventsStore"], "readwrite");
+                events.forEach(value => {
+                  let request = tx.objectStore("eventsStore").add(value);
+                  requests.push(
+                    new Promise((resolve, reject) => {
+                      request.onsuccess = event => {
+                        resolve();
+                      };
+                    })
+                  );
+                });
+                db.close();
               });
-            return {cancel: false}; 
-        },
-        {urls: ["*://cloud.pollstar.com/api/*"]},
-         []);
-      
+              return Promise.all(requests);
+            }).then(() => {
+              connectDB(db => {
+                const transaction = db.transaction("eventsStore", "readwrite");
+                const store = transaction.objectStore("eventsStore");
+                const eventsRequest = store.getAll();
+                [];
 
+                eventsRequest.onsuccess = function() {
+                  const { result } = eventsRequest;
+                  const events = result.reduce(
+                    (acc, current) => {
+                      acc.push(Object.values(current));
+                      return acc;
+                    },
+                    [Object.keys(result[0])]
+                  );
+                  
+                  const blob = generateCsvBlob(events);
+                  const url = URL.createObjectURL(blob);
+                  sendResponse({ downloadUrl: url });
+                  store.clear();
+                  db.close();
+                };
+              });
+            });
+          });
+        });
+
+        break;
+      default:
+        sendResponse({ result: "error", message: `Invalid 'cmd'` });
+        break;
+    }
+
+    return true;
+  });
+
+  //listen to networkRequest
+  toggleParsingWebRequests(true);
 })();

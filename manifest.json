@@ -8,10 +8,18 @@
     "permissions": [
         "tabs",
         "webRequest",
-        "*://cloud.pollstar.com/api/*"
+        "*://cloud.pollstar.com/api/*",
+        "https://code.getmdl.io/*",
+        "*://ip.jsontest.com/*",
+        "storage"
     ],
+    "content_security_policy": "script-src 'self' https://code.getmdl.io; object-src 'self'",
     "background": {
         "scripts": [            
+            "js/background-request-utils.js",
+            "js/event-fetch.js",
+            "js/connect-db.js",
+            "js/generate-csv-blob.js",
             "js/background.js"
         ]
     },
