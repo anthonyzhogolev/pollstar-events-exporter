@@ -5,12 +5,13 @@
       return;
     }
     switch (request.cmd) {
-      case "runExport":        
-
+      case "runExport":  
+ 
         chrome.storage.sync.set({ loadedEvents: [] }, () => {
           chrome.storage.sync.get(["url", "headers", "totalPages"], result => {
             const { url, headers, totalPages } = result;
             const requestData = new RequestData(url, headers);
+            toggleParsingWebRequests(false);
             fetchEvents(requestData, totalPages, events => {
               //saving events to indexed db
               let requests = [];
@@ -51,6 +52,7 @@
                   sendResponse({ downloadUrl: url });
                   store.clear();
                   db.close();
+                  toggleParsingWebRequests(true);
                 };
               });
             });
