@@ -12,8 +12,9 @@
             const { url, headers, totalPages } = result;
             const requestData = new RequestData(url, headers);
             toggleParsingWebRequests(false);
-            fetchEvents(requestData, totalPages, events => {
+            fetchEvents(requestData, totalPages, (events,pageIndex) => {
               //saving events to indexed db
+              console.log('onPageLoad',events,pageIndex);
               let requests = [];
               connectDB(db => {
                 const tx = db.transaction(["eventsStore"], "readwrite");
@@ -31,6 +32,8 @@
               });
               return Promise.all(requests);
             }).then(() => {
+              toggleParsingWebRequests(true);
+              console.log('get results from db');
               connectDB(db => {
                 const transaction = db.transaction("eventsStore", "readwrite");
                 const store = transaction.objectStore("eventsStore");
@@ -52,7 +55,7 @@
                   sendResponse({ downloadUrl: url });
                   store.clear();
                   db.close();
-                  toggleParsingWebRequests(true);
+                  
                 };
               });
             });

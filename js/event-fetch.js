@@ -1,13 +1,15 @@
 const fetchEvents = async (request, pagesCount, onPageLoad) => {
-  const eventRequests = [];
-   
+    
     for (let i = 0; i < pagesCount; i++) {
+      console.log('begin request ',i);
       const newUrl = request.url.replace(/(page\=\d*)/, `page=${i}`);
-      const response =await fetch(newUrl, { headers: request.headers });
-      const events  = await response.json();
-      await onPageLoad(events);  
+      const rawResponse =await fetch(newUrl, { headers: request.headers });
+      console.log('fetch ',i);
+      const response  = await rawResponse.json();
+     
+      await onPageLoad(response.events,i);  
     }
-     ;
+    
    
 };
 
