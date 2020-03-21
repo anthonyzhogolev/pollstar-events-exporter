@@ -53,6 +53,7 @@ function storeRequestData(details) {
 
   chrome.storage.sync.set({ filters },()=>{
     chrome.storage.sync.set({ totalPages:null,totalRows:null });
+    chrome.storage.sync.set({STORAGE_KEYS.fetchStatus:FETCH_STATUS.waitForTotalRows});
   });
 
   toggleParsingWebRequests(false);
