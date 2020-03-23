@@ -21,8 +21,11 @@
     <meta charset="utf-8" />
     <title>Pollstar Exporter</title>
     <style>
-      .mdl-chip{
+      .mdl-chip {
         margin: 0 5px 2px 0;
+      }
+      .error-text{
+        color: crimson;
       }
     </style>
   </head>
@@ -38,10 +41,9 @@
       <div class="mdl-card__supporting-text js-total-row">
         <div class="js-text-container"></div>
         <div
-            class="mdl-spinner mdl-js-spinner is-active"
-            style="display: none;"
-          >
-        </div>
+          class="mdl-spinner mdl-js-spinner is-active"
+          style="display: none;"
+        ></div>
       </div>
       <div class="mdl-card__actions">
         <div class="actions-container" style="display: flex;">
@@ -52,14 +54,24 @@
               Export
             </button>
             <div
-            class="mdl-spinner mdl-js-spinner is-active"
-            style="display: none;"
-          ></div>
+              class="mdl-spinner mdl-js-spinner is-active"
+              style="display: none;"
+            ></div>
           </div>
-          
+          <div class="js-retry-button-container">
+      
+            <button
+              class="mdl-button js-retry-btn mdl-js-button mdl-button--raised"
+            >
+              Retry
+            </button>
+            <div class="js-error-text-container error-text">
+              Request return 403
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </body>
 </html>
-            <!--  -->
+<!--  -->

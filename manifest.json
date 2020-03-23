@@ -15,7 +15,9 @@
     ],
     "content_security_policy": "script-src 'self' https://code.getmdl.io; object-src 'self'",
     "background": {
-        "scripts": [            
+        "scripts": [         
+            "js/constants.js",
+            "js/background/storage-utils.js",
             "js/background/store-request-data.js",
             "js/background/event-fetch.js",
             "js/background/connect-db.js",

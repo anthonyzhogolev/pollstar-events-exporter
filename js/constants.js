@@ -1,10 +1,16 @@
- 
+  const LISTEN_REQUEST_URL_PATTERN = "*://cloud.pollstar.com/api/*";
+
   const STORAGE_KEYS = {
+    url:"url",  
+    headers:"headers",
+    totalPages:"totalPages",
     filters: "filters",
     totalRows: "totalRows",
     fetchStatus: "fetchStatus",
     downloadStatus: "downloadStatus",
-    lastSuccessFetchedPage: "lastSuccessFetchedPage"
+    lastSuccessFetchedPage: "lastSuccessFetchedPage",
+    errorPage:"errorPage",
+    fetchLastError:"fetchLastError"
   };
 
   const FETCH_STATUS = {
@@ -12,6 +18,7 @@
     waitForTotalRows:"waitForTotalRows",
     ready: "ready",
     inProgress: "inProgress",
+    finish:"finish",
     error: "error"
   };
 
@@ -19,5 +26,6 @@
     disabled: "disabled",
     ready: "ready",
     inProgress: "inProgress",
-    finish: "finish"
+    finish: "finish",
+    error: "error"
   };

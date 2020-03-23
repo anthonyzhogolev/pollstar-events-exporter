@@ -45,17 +45,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   var port = chrome.runtime.connect({ name: "pollstar" });
 
+  document.querySelector(".js-retry-btn").addEventListener("click", () => {
+    
+    chrome.runtime.sendMessage({ cmd: "retryExport" }, function(response) {
+      
+    });
+  });
+
   document.querySelector(".js-run-btn").addEventListener("click", () => {
-    const button = document.querySelector(".js-run-btn");
-    button.style.display = "none";
-    const loader = document.querySelector(".mdl-js-spinner");
-    loader.style.display = "block";
+    
+    
     chrome.runtime.sendMessage({ cmd: "runExport" }, function(response) {
-      button.style.display = "block";
-      loader.style.display = "none";
-      if (response.downloadUrl) {
-        showDownloadLink(response.downloadUrl);
-      }
+      
     });
   });
 });

@@ -1,17 +1,15 @@
 function getParameterByName(queryString, name) {
-    // Escape special RegExp characters
-    name = name.replace(/[[^$.|?*+(){}\\]/g, "\\$&");
-    // Create Regular expression
-    var regex = new RegExp("(?:[?&]|^)" + name + "=([^&#]*)");
-    // Attempt to get a match
-    var results = regex.exec(queryString);
-    return decodeURIComponent(results[1].replace(/\+/g, " ")) || "";
-  }
-  
+  // Escape special RegExp characters
+  name = name.replace(/[[^$.|?*+(){}\\]/g, "\\$&");
+  // Create Regular expression
+  var regex = new RegExp("(?:[?&]|^)" + name + "=([^&#]*)");
+  // Attempt to get a match
+  var results = regex.exec(queryString);
+  return decodeURIComponent(results[1].replace(/\+/g, " ")) || "";
+}
 
-  const storePagesCount = (url, headers) =>
-  new Promise((resolve, reject) => {
-    
+async function storePagesCount(url, headers) {
+  return new Promise((resolve, reject) => {
     fetch(url, { headers })
       .then(response => response.json())
       .then(response => {
@@ -19,13 +17,14 @@ function getParameterByName(queryString, name) {
         chrome.storage.sync.set({ totalPages, totalRows }, () => resolve());
       });
   });
+}
 
-const storeUrl = url =>
+const storeUrl = async url =>
   new Promise((resolve, reject) => {
     chrome.storage.sync.set({ url }, () => resolve(url));
   });
 
-const storeHeaders = requestHeaders =>
+const storeHeaders = async requestHeaders =>
   new Promise((resolve, reject) => {
     const headers = requestHeaders.reduce((acc, header) => {
       acc[header.name] = header.value;
@@ -34,36 +33,43 @@ const storeHeaders = requestHeaders =>
     chrome.storage.sync.set({ headers }, () => resolve(headers));
   });
 
-function toggleParsingWebRequests(enable) {
+function toggleListenWebRequests(enable) {
   if (enable) {
     chrome.webRequest.onSendHeaders.addListener(
       storeRequestData,
-      { urls: ["*://cloud.pollstar.com/api/*"] },
+      { urls: [LISTEN_REQUEST_URL_PATTERN] },
       ["requestHeaders"]
     );
-  } else {    
+  } else {
     chrome.webRequest.onSendHeaders.removeListener(storeRequestData);
   }
 }
 
-function storeRequestData(details) {
+async function storeRequestData(details) {
+  console.log('storeRequestData...');
   const filters = getParameterByName(details.url, "filter")
     .split(/,(?=\w)/)
     .map(item => item.replace(/(\w*==)/, ""));
 
-  chrome.storage.sync.set({ filters },()=>{
-    chrome.storage.sync.set({ totalPages:null,totalRows:null });
-    chrome.storage.sync.set({STORAGE_KEYS.fetchStatus:FETCH_STATUS.waitForTotalRows});
+  await setStorageValue({
+    filters,
+    totalPages: null,
+    totalRows: null,
+    [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.waitForTotalRows
   });
-
-  toggleParsingWebRequests(false);
+  
+  toggleListenWebRequests(false);
 
   Promise.all([
     storeUrl(details.url),
     storeHeaders(details.requestHeaders)
   ]).then(values => {
-    chrome.storage.sync.get(["headers"], result => {
-      storePagesCount(details.url,result.headers).then(() => toggleParsingWebRequests(true));
+    chrome.storage.sync.get(["headers"], async result => {
+      await storePagesCount(details.url, result.headers);
+      await setStorageValue({
+        [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.ready
+      });
+      toggleListenWebRequests(true);
     });
   });
 
