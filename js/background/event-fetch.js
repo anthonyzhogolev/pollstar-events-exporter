@@ -12,6 +12,7 @@ const fetchEvents = async (request, pagesCount, onPageLoad, startPage = 0) => {
       );
     }
     const response = await rawResponse.json();
+
     console.log("responseJsoned", response);
     await onPageLoad(response.events, page);
   }

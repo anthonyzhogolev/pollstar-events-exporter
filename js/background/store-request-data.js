@@ -21,7 +21,8 @@ async function storePagesCount(url, headers) {
 
 const storeUrl = async url =>
   new Promise((resolve, reject) => {
-    chrome.storage.sync.set({ url }, () => resolve(url));
+    const urlValue = url.replace("&summaryOnly=true", "")
+    chrome.storage.sync.set({ url:urlValue }, () => resolve(url));
   });
 
 const storeHeaders = async requestHeaders =>

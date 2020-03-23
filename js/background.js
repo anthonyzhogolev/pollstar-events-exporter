@@ -1,6 +1,7 @@
 (() => {
 
   const savePage = async (events, pageIndex) => {
+    // console.log('savePage',events,pageIndex)
     //saving events to indexed db
     let requests = [];
     connectDB(db => {
