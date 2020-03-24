@@ -4,6 +4,10 @@ const fetchEvents = async (request, pagesCount, onPageLoad, startPage = 0) => {
   for (let page = startPage; page < pagesCount; page++) {
     const newUrl = request.url.replace(/(page\=\d*)/, `page=${page}`);
 
+    // const rawResponse =
+    //   page === 2
+    //     ? await fetch(newUrl, { headers: {} })
+    //     : await fetch(newUrl, { headers: request.headers });
     const rawResponse = await fetch(newUrl, { headers: request.headers });
     console.log("rawResponse", rawResponse);
     if (rawResponse.status !== 200) {

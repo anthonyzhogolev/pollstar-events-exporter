@@ -1,5 +1,4 @@
 (() => {
-
   const savePage = async (events, pageIndex) => {
     // console.log('savePage',events,pageIndex)
     //saving events to indexed db
@@ -20,24 +19,37 @@
     });
     await Promise.all(requests);
     setStorageValue({ [STORAGE_KEYS.lastSuccessFetchedPage]: pageIndex });
-  }
+  };
 
   const runExport = async () => {
+    console.log("run export...");
+
     const { url, headers, totalPages } = await getStorageValues([
       STORAGE_KEYS.url,
       STORAGE_KEYS.headers,
       STORAGE_KEYS.totalPages
     ]);
+
     toggleListenWebRequests(false);
-    const requestData = new RequestData(url, headers);
-    setStorageValue({ [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.inProgress,[STORAGE_KEYS.downloadStatus]:DOWNLOAD_STATUS.disabled });
+
+    await setStorageValue({
+      [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.inProgress,
+      [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled
+    });
+
     try {
-      await fetchEvents(requestData, totalPages,savePage );
-      setStorageValue({ [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.finish,[STORAGE_KEYS.downloadStatus]:DOWNLOAD_STATUS.ready });
+      const requestData = new RequestData(url, headers);
+      await fetchEvents(requestData, totalPages, savePage);
+
+      setStorageValue({
+        [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.finish,
+        [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.ready
+      });
     } catch (e) {
+      console.log("runExport throwed exception:", e);
       setStorageValue({
         [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.error,
-        [STORAGE_KEYS.fetchLastError]: error.message
+        [STORAGE_KEYS.fetchLastError]: e.message
       });
     }
 
@@ -45,36 +57,60 @@
   };
 
   const retryExport = async () => {
-    const { lastSuccessFetchedPage } = await getStorageValues([
-      STORAGE_KEYS.lastSuccessFetchedPage
+    
+    const {
+      url,
+      headers,
+      totalPages,
+      lastSuccessFetchedPage
+    } = await getStorageValues([
+      STORAGE_KEYS.lastSuccessFetchedPage,
+      STORAGE_KEYS.url,
+      STORAGE_KEYS.headers,
+      STORAGE_KEYS.totalPages
     ]);
-    setStorageValue({ [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.inProgress,[STORAGE_KEYS.downloadStatus]:DOWNLOAD_STATUS.disabled });
-    console.log('retry export');
+
+    await setStorageValue({
+      [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.inProgress,
+      [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled
+    });
+
+    console.log("retry export");
     console.log(lastSuccessFetchedPage, "lastSuccessFetchedPage");
+    
     try {
+      const requestData = new RequestData(url, headers);
       await fetchEvents(
         requestData,
         totalPages,
         savePage,
         lastSuccessFetchedPage + 1
       );
-      setStorageValue({ [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.finish,[STORAGE_KEYS.downloadStatus]:DOWNLOAD_STATUS.ready });
+      setStorageValue({
+        [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.finish,
+        [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.ready
+      });
     } catch (e) {
       setStorageValue({
         [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.error,
-        [STORAGE_KEYS.fetchLastError]: error.message
+        [STORAGE_KEYS.fetchLastError]: e.message
       });
     }
   };
 
-  generateCsv = () =>
-    connectDB(db => {
+  generateCsv = async () =>
+    connectDB(async db => {
+      await setStorageValue({
+        [STORAGE_KEYS.downloadUrl]: null,
+        [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.inProgress
+      });
+      
       const transaction = db.transaction("eventsStore", "readwrite");
       const store = transaction.objectStore("eventsStore");
       const eventsRequest = store.getAll();
       [];
 
-      eventsRequest.onsuccess = function() {
+      eventsRequest.onsuccess = async function() {
         const { result } = eventsRequest;
         const events = result.reduce(
           (acc, current) => {
@@ -86,8 +122,11 @@
 
         const blob = generateCsvBlob(events);
         const url = URL.createObjectURL(blob);
-        sendResponse({ downloadUrl: url });
-        store.clear();
+        await setStorageValue({
+          [STORAGE_KEYS.downloadUrl]: url,
+          [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.finish
+        });
+        
         db.close();
       };
     });
@@ -99,10 +138,18 @@
     }
     switch (request.cmd) {
       case "runExport":
+        connectDB(db => {
+          const transaction = db.transaction("eventsStore", "readwrite");
+          const store = transaction.objectStore("eventsStore");
+          store.clear();
+          console.log("clear storage...");
+          db.close();
+        });
         runExport();
         break;
       case "retryExport":
         retryExport();
+        break;
       case "generateCsv":
         generateCsv();
 
@@ -115,14 +162,15 @@
     return true;
   });
 
-  setStorageValue({[STORAGE_KEYS.downloadStatus]:DOWNLOAD_STATUS.disabled});
+  chrome.runtime.onInstalled.addListener(function() {
+    console.log("on installed");
+  });
 
-  chrome.webRequest.onSendHeaders.addListener(
-    ()=>setStorageValue({[STORAGE_KEYS.downloadStatus]:DOWNLOAD_STATUS.disabled}),
-    { urls: [LISTEN_REQUEST_URL_PATTERN] },
-    ["requestHeaders"]
-  );
-
-  //listen to networkRequest
+  // setStorageValue({
+  //   [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.disabled,
+  //   [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled,
+  //   [STORAGE_KEYS.lastSuccessFetchedPage]: null,
+  //   [STORAGE_KEYS.fetchLastError]: null
+  // });
   toggleListenWebRequests(true);
 })();

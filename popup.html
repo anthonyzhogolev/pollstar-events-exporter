@@ -24,8 +24,11 @@
       .mdl-chip {
         margin: 0 5px 2px 0;
       }
-      .error-text{
+      .error-text {
         color: crimson;
+      }
+      .action-container {
+        margin-left: 5px;
       }
     </style>
   </head>
@@ -47,7 +50,7 @@
       </div>
       <div class="mdl-card__actions">
         <div class="actions-container" style="display: flex;">
-          <div class="js-fetch-button-container">
+          <div class="action-container js-fetch-button-container">
             <button
               class="mdl-button js-run-btn mdl-js-button mdl-button--raised mdl-button--colored"
             >
@@ -58,16 +61,31 @@
               style="display: none;"
             ></div>
           </div>
-          <div class="js-retry-button-container" style="display: none;">
-      
+          <div
+            class="action-container js-retry-button-container"
+            style="display: none;"
+          >
             <button
               class="mdl-button js-retry-btn mdl-js-button mdl-button--raised"
             >
               Retry
             </button>
             <div class="js-error-text-container error-text">
-              Request return 403
+              ...
             </div>
+          </div>
+          <div class="action-container js-download-button-container">
+            <button
+              class="mdl-button js-download-btn mdl-js-button mdl-button--raised"
+              disabled
+            >
+              Download
+            </button>
+            <a class="js-download-link" style="display: none;">download</a>
+            <div
+              class="mdl-spinner mdl-js-spinner is-active"
+              style="display: none;"
+            ></div>
           </div>
         </div>
       </div>

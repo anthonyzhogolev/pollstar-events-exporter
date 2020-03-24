@@ -3,7 +3,7 @@
     "short_name": "PollstarEventsExporter",
     "author": "Anthony Zhogolev",
     "manifest_version": 2,
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Exports Pollstar events list to CSV file",
     "permissions": [
         "tabs",

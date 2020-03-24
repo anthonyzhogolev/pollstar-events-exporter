@@ -9,45 +9,63 @@ function getParameterByName(queryString, name) {
 }
 
 async function storePagesCount(url, headers) {
-  return new Promise((resolve, reject) => {
-    fetch(url, { headers })
-      .then(response => response.json())
-      .then(response => {
-        const { totalPages, totalRows } = response;
-        chrome.storage.sync.set({ totalPages, totalRows }, () => resolve());
-      });
-  });
+
+  const rawResponse = await fetch(url, { headers });
+  if (rawResponse.status !== 200) {
+    throw new Error(
+      "Request returns " + rawResponse.status + " on page#" + page
+    );
+  }
+  const response = await rawResponse.json();
+  const { totalPages, totalRows } = response;
+  return setStorageValue({ totalPages, totalRows });
+  
 }
 
-const storeUrl = async url =>
-  new Promise((resolve, reject) => {
-    const urlValue = url.replace("&summaryOnly=true", "")
-    chrome.storage.sync.set({ url:urlValue }, () => resolve(url));
-  });
+const storeUrl = async url => setStorageValue({ url });
 
-const storeHeaders = async requestHeaders =>
-  new Promise((resolve, reject) => {
-    const headers = requestHeaders.reduce((acc, header) => {
-      acc[header.name] = header.value;
-      return acc;
-    }, {});
-    chrome.storage.sync.set({ headers }, () => resolve(headers));
-  });
+const storeHeaders = async requestHeaders => {
+  const headers = requestHeaders.reduce((acc, header) => {
+    acc[header.name] = header.value;
+    return acc;
+  }, {});
+  return setStorageValue({ headers });
+};
 
 function toggleListenWebRequests(enable) {
   if (enable) {
     chrome.webRequest.onSendHeaders.addListener(
-      storeRequestData,
+      processWebRequest,
       { urls: [LISTEN_REQUEST_URL_PATTERN] },
       ["requestHeaders"]
     );
   } else {
-    chrome.webRequest.onSendHeaders.removeListener(storeRequestData);
+    chrome.webRequest.onSendHeaders.removeListener(processWebRequest);
   }
 }
 
+async function processWebRequest(details) {
+  if (details.url.includes("&summaryOnly=true")) {
+    console.log("summary url canceled...");
+    return;
+  }
+  await setInitialState();
+  await storeRequestData(details);
+  return { cancel: false };
+}
+
+async function setInitialState() {
+  console.log("setInitialState...");
+  await setStorageValue({
+    [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.disabled,
+    [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled,
+    [STORAGE_KEYS.lastSuccessFetchedPage]: null,
+    [STORAGE_KEYS.fetchLastError]: null
+  });
+}
+
 async function storeRequestData(details) {
-  console.log('storeRequestData...');
+  console.log("storeRequestData...");
   const filters = getParameterByName(details.url, "filter")
     .split(/,(?=\w)/)
     .map(item => item.replace(/(\w*==)/, ""));
@@ -58,7 +76,7 @@ async function storeRequestData(details) {
     totalRows: null,
     [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.waitForTotalRows
   });
-  
+
   toggleListenWebRequests(false);
 
   Promise.all([
@@ -73,6 +91,4 @@ async function storeRequestData(details) {
       toggleListenWebRequests(true);
     });
   });
-
-  return { cancel: false };
 }
