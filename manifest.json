@@ -3,7 +3,7 @@
     "short_name": "PollstarEventsExporter",
     "author": "Anthony Zhogolev",
     "manifest_version": 2,
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Exports Pollstar events list to CSV file",
     "permissions": [
         "tabs",
@@ -15,11 +15,13 @@
     ],
     "content_security_policy": "script-src 'self' https://code.getmdl.io; object-src 'self'",
     "background": {
-        "scripts": [            
-            "js/background-request-utils.js",
-            "js/event-fetch.js",
-            "js/connect-db.js",
-            "js/generate-csv-blob.js",
+        "scripts": [         
+            "js/constants.js",
+            "js/background/storage-utils.js",
+            "js/background/store-request-data.js",
+            "js/background/event-fetch.js",
+            "js/background/connect-db.js",
+            "js/background/generate-csv-blob.js",
             "js/background.js"
         ]
     },
