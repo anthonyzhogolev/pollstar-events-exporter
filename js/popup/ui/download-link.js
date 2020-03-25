@@ -7,10 +7,7 @@ function showDownloadButton(status) {
     button.setAttribute("disabled", "disabled");
     return;
   }
-  if (status === DOWNLOAD_STATUS.ready || status === DOWNLOAD_STATUS.finish) {
-    button.removeAttribute("disabled");
-    return;
-  }
+
   if (status === DOWNLOAD_STATUS.inProgress) {
     loader.style.display = "block";
     button.style.display = "none";
@@ -18,5 +15,8 @@ function showDownloadButton(status) {
     loader.style.display = "none";
     button.style.display = "block";
   }
-  
+  if (status === DOWNLOAD_STATUS.ready || status === DOWNLOAD_STATUS.finish) {
+    button.removeAttribute("disabled");
+    return;
+  }
 }

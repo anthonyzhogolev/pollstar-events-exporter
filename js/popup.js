@@ -6,14 +6,24 @@ document.addEventListener("DOMContentLoaded", () => {
       STORAGE_KEYS.filters,
       STORAGE_KEYS.totalRows,
       STORAGE_KEYS.fetchStatus,
-      STORAGE_KEYS.downloadStatus
+      STORAGE_KEYS.downloadStatus,
+      STORAGE_KEYS.totalPages,
+      STORAGE_KEYS.lastSuccessFetchedPage
     ],
     result => {
-      const { filters, totalRows, fetchStatus, downloadStatus } = result;
+      const {
+        filters,
+        totalRows,
+        fetchStatus,
+        downloadStatus,
+        lastSuccessFetchedPage,
+        totalPages
+      } = result;
 
       showFilters(filters);
       showTotalRows(fetchStatus, totalRows);
       showFetchButton(fetchStatus);
+      showProgressText(fetchStatus, lastSuccessFetchedPage, totalPages);
       showDownloadButton(downloadStatus);
     }
   );
@@ -44,17 +54,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    console.log('isDownloadFinished',isDownloadFinished,downloadUrl)
-    
+    console.log("isDownloadFinished", isDownloadFinished, downloadUrl);
+
     if (isDownloadFinished && downloadUrl) {
-      
       const a = document.querySelector(".js-download-link");
-      
-      
+
       a.href = downloadUrl;
       a.download = "my.csv";
       a.click();
-      
+      showDownloadButton(DOWNLOAD_STATUS.finish);
       // window.URL.revokeObjectURL(downloadUrl);
     }
 
@@ -63,14 +71,24 @@ document.addEventListener("DOMContentLoaded", () => {
         STORAGE_KEYS.filters,
         STORAGE_KEYS.totalRows,
         STORAGE_KEYS.fetchStatus,
-        STORAGE_KEYS.downloadStatus
+        STORAGE_KEYS.downloadStatus,
+        STORAGE_KEYS.totalPages,
+        STORAGE_KEYS.lastSuccessFetchedPage
       ],
       result => {
-        const { filters, totalRows, fetchStatus, downloadStatus } = result;
+        const {
+          filters,
+          totalRows,
+          fetchStatus,
+          downloadStatus,
+          totalPages,
+          lastSuccessFetchedPage
+        } = result;
 
         showFilters(filters);
         showTotalRows(fetchStatus, totalRows);
         showFetchButton(fetchStatus);
+        showProgressText(fetchStatus, lastSuccessFetchedPage, totalPages);
         showDownloadButton(downloadStatus);
       }
     );
