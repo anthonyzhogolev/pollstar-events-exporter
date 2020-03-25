@@ -57,7 +57,6 @@
   };
 
   const retryExport = async () => {
-    
     const {
       url,
       headers,
@@ -77,7 +76,7 @@
 
     console.log("retry export");
     console.log(lastSuccessFetchedPage, "lastSuccessFetchedPage");
-    
+
     try {
       const requestData = new RequestData(url, headers);
       await fetchEvents(
@@ -104,7 +103,7 @@
         [STORAGE_KEYS.downloadUrl]: null,
         [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.inProgress
       });
-      
+
       const transaction = db.transaction("eventsStore", "readwrite");
       const store = transaction.objectStore("eventsStore");
       const eventsRequest = store.getAll();
@@ -126,7 +125,7 @@
           [STORAGE_KEYS.downloadUrl]: url,
           [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.finish
         });
-        
+
         db.close();
       };
     });
@@ -146,9 +145,11 @@
           db.close();
         });
         runExport();
+        setStorageValue({ [STORAGE_KEYS.lastSuccessFetchedPage]: 0 });
         break;
       case "retryExport":
         retryExport();
+        setStorageValue({ [STORAGE_KEYS.lastSuccessFetchedPage]: 0 });
         break;
       case "generateCsv":
         generateCsv();
@@ -166,11 +167,13 @@
     console.log("on installed");
   });
 
-  // setStorageValue({
-  //   [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.disabled,
-  //   [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled,
-  //   [STORAGE_KEYS.lastSuccessFetchedPage]: null,
-  //   [STORAGE_KEYS.fetchLastError]: null
-  // });
+  setStorageValue({
+    [STORAGE_KEYS.totalRows]: null,
+    [STORAGE_KEYS.filters]: [],
+    [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.disabled,
+    [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled,
+    [STORAGE_KEYS.lastSuccessFetchedPage]: null,
+    [STORAGE_KEYS.fetchLastError]: null
+  });
   toggleListenWebRequests(true);
 })();

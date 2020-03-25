@@ -17,6 +17,7 @@
     <script src="js/popup/ui/event-count.js"></script>
     <script src="js/popup/ui/fetch-button.js"></script>
     <script src="js/popup/ui/download-link.js"></script>
+    <script src="js/popup/ui/progress-text.js"></script>
     <script src="js/popup.js"></script>
     <meta charset="utf-8" />
     <title>Pollstar Exporter</title>
@@ -28,7 +29,13 @@
         color: crimson;
       }
       .action-container {
-        margin-left: 5px;
+        margin-left: 15px;
+      }
+      .progress-text {
+        font-size: 12px;
+      }
+      .mdl-card__supporting-text.progress-container{
+        padding: 5px;
       }
     </style>
   </head>
@@ -60,6 +67,8 @@
               class="mdl-spinner mdl-js-spinner is-active"
               style="display: none;"
             ></div>
+           
+            </span>
           </div>
           <div
             class="action-container js-retry-button-container"
@@ -89,7 +98,10 @@
           </div>
         </div>
       </div>
-    </div>
+      <div class="mdl-card__supporting-text js-progress-container progress-container">
+        <span  style="display: none;" class="js-progress-text progress-text ">*</span>
+      </div>
+    </div> 
   </body>
 </html>
 <!--  -->
