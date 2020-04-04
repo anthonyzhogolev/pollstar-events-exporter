@@ -30,3 +30,14 @@ const DOWNLOAD_STATUS = {
   finish: "finish",
   error: "error"
 };
+
+const LOG_LEVEL = {
+  debug: "debug",
+  warning: "warning",
+  error: "error"
+};
+
+const DB_STORES = {
+  eventsStore: "eventsStore",
+  logStore: "log"
+};

@@ -5,11 +5,13 @@ function getParameterByName(queryString, name) {
   var regex = new RegExp("(?:[?&]|^)" + name + "=([^&#]*)");
   // Attempt to get a match
   var results = regex.exec(queryString);
-  return decodeURIComponent(results[1].replace(/\+/g, " ")) || "";
+  if (results && results.length) {
+    return decodeURIComponent(results[1].replace(/\+/g, " ")) || "";
+  }
+  return null;
 }
 
 async function storePagesCount(url, headers) {
-
   const rawResponse = await fetch(url, { headers });
   if (rawResponse.status !== 200) {
     throw new Error(
@@ -19,7 +21,6 @@ async function storePagesCount(url, headers) {
   const response = await rawResponse.json();
   const { totalPages, totalRows } = response;
   return setStorageValue({ totalPages, totalRows });
-  
 }
 
 const storeUrl = async url => setStorageValue({ url });
@@ -33,6 +34,7 @@ const storeHeaders = async requestHeaders => {
 };
 
 function toggleListenWebRequests(enable) {
+  console.log("toggleListenWebRequests", enable, new Error().stack);
   if (enable) {
     chrome.webRequest.onSendHeaders.addListener(
       processWebRequest,
@@ -66,9 +68,10 @@ async function setInitialState() {
 
 async function storeRequestData(details) {
   console.log("storeRequestData...");
-  const filters = getParameterByName(details.url, "filter")
-    .split(/,(?=\w)/)
-    .map(item => item.replace(/(\w*==)/, ""));
+  const filtersStr = getParameterByName(details.url, "filter");
+  const filters = filtersStr
+    ? filtersStr.split(/,(?=\w)/).map(item => item.replace(/(\w*==)/, ""))
+    : null;
 
   await setStorageValue({
     filters,

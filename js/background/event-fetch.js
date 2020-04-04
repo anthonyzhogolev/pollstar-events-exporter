@@ -9,7 +9,7 @@ const fetchEvents = async (request, pagesCount, onPageLoad, startPage = 0) => {
     //     ? await fetch(newUrl, { headers: {} })
     //     : await fetch(newUrl, { headers: request.headers });
     const rawResponse = await fetch(newUrl, { headers: request.headers });
-    console.log("rawResponse", rawResponse);
+
     if (rawResponse.status !== 200) {
       throw new Error(
         "Request returns " + rawResponse.status + " on page#" + page
@@ -17,8 +17,7 @@ const fetchEvents = async (request, pagesCount, onPageLoad, startPage = 0) => {
     }
     const response = await rawResponse.json();
 
-    console.log("responseJsoned", response);
-    await onPageLoad(response.events, page);
+    await onPageLoad(response.events, page, request.url, rawResponse.status);
   }
 };
 
