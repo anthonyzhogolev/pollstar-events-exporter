@@ -1,7 +1,7 @@
 (async () => {
   const clearDb = () => {
     return new Promise((resolve, reject) => {
-      connectDB(db => {
+      connectDB((db) => {
         const transaction = db.transaction(
           [DB_STORES.eventsStore],
           "readwrite"
@@ -24,22 +24,26 @@
   };
 
   const logToDbWrapper = async (message, level = LOG_LEVEL.debug) => {
-    connectDB(async db => {
-      await logToDb(db, message, level);
-      db.close();
+    connectDB(async (db) => {
+      try {
+        await logToDb(db, message, level);
+        db.close();
+      } catch (e) {
+        console.error("logToDbException:", e);
+      }
     });
   };
 
   const savePage = async (events, pageIndex, url, status) => {
     let requests = [];
     logToDbWrapper(`${status} ${url} `, LOG_LEVEL.debug);
-    connectDB(db => {
+    connectDB((db) => {
       const tx = db.transaction([DB_STORES.eventsStore], "readwrite");
-      events.forEach(value => {
+      events.forEach((value) => {
         let request = tx.objectStore("eventsStore").add(value);
         requests.push(
           new Promise((resolve, reject) => {
-            request.onsuccess = event => {
+            request.onsuccess = (event) => {
               resolve();
             };
           })
@@ -60,7 +64,7 @@
     const { url, headers, totalPages } = await getStorageValues([
       STORAGE_KEYS.url,
       STORAGE_KEYS.headers,
-      STORAGE_KEYS.totalPages
+      STORAGE_KEYS.totalPages,
     ]);
 
     await logToDbWrapper(
@@ -70,7 +74,7 @@
 
     await setStorageValue({
       [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.inProgress,
-      [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled
+      [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled,
     });
 
     try {
@@ -80,7 +84,7 @@
       await setStorageValue({
         [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.finish,
         [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.ready,
-        [STORAGE_KEYS.lastSuccessFetchedPage]: null
+        [STORAGE_KEYS.lastSuccessFetchedPage]: null,
       });
 
       await logToDbWrapper(`export finished`, LOG_LEVEL.debug);
@@ -88,7 +92,7 @@
       console.log("runExport throwed exception:", e);
 
       const { lastSuccessFetchedPage } = await getStorageValues([
-        STORAGE_KEYS.lastSuccessFetchedPage
+        STORAGE_KEYS.lastSuccessFetchedPage,
       ]);
       await logToDbWrapper(
         `error on page#${lastSuccessFetchedPage + 1}: ${e.message}`,
@@ -97,7 +101,7 @@
 
       await setStorageValue({
         [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.error,
-        [STORAGE_KEYS.fetchLastError]: e.message
+        [STORAGE_KEYS.fetchLastError]: e.message,
       });
     }
   };
@@ -107,21 +111,21 @@
       url,
       headers,
       totalPages,
-      lastSuccessFetchedPage
+      lastSuccessFetchedPage,
     } = await getStorageValues([
       STORAGE_KEYS.lastSuccessFetchedPage,
       STORAGE_KEYS.url,
       STORAGE_KEYS.headers,
-      STORAGE_KEYS.totalPages
+      STORAGE_KEYS.totalPages,
     ]);
 
     await setStorageValue({
       [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.inProgress,
-      [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled
+      [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled,
     });
 
     await logToDbWrapper(
-      `retry export from page#${lastSuccessFetchedPage}`,
+      `retry export from page#${lastSuccessFetchedPage + 1}`,
       LOG_LEVEL.debug
     );
 
@@ -136,11 +140,11 @@
       await setStorageValue({
         [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.finish,
         [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.ready,
-        [STORAGE_KEYS.lastSuccessFetchedPage]: null
+        [STORAGE_KEYS.lastSuccessFetchedPage]: null,
       });
     } catch (e) {
       const { lastSuccessFetchedPage } = await getStorageValues([
-        STORAGE_KEYS.lastSuccessFetchedPage
+        STORAGE_KEYS.lastSuccessFetchedPage,
       ]);
       await logToDbWrapper(
         `error on page#${lastSuccessFetchedPage + 1}: ${e.message}`,
@@ -149,16 +153,16 @@
 
       await setStorageValue({
         [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.error,
-        [STORAGE_KEYS.fetchLastError]: e.message
+        [STORAGE_KEYS.fetchLastError]: e.message,
       });
     }
   };
 
   generateCsv = async () =>
-    connectDB(async db => {
+    connectDB(async (db) => {
       await setStorageValue({
         [STORAGE_KEYS.downloadUrl]: null,
-        [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.inProgress
+        [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.inProgress,
       });
 
       const transaction = db.transaction("eventsStore", "readwrite");
@@ -166,7 +170,7 @@
       const eventsRequest = store.getAll();
       [];
 
-      eventsRequest.onsuccess = async function() {
+      eventsRequest.onsuccess = async function () {
         const { result } = eventsRequest;
         const events = result.reduce(
           (acc, current) => {
@@ -180,7 +184,7 @@
         const url = URL.createObjectURL(blob);
         await setStorageValue({
           [STORAGE_KEYS.downloadUrl]: url,
-          [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.finish
+          [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.finish,
         });
 
         db.close();
@@ -188,7 +192,7 @@
     });
 
   //bind with popup
-  chrome.runtime.onMessage.addListener(async function(
+  chrome.runtime.onMessage.addListener(async function (
     request,
     sender,
     sendResponse
@@ -224,9 +228,8 @@
     return true;
   });
   await clearDb();
-  logToDbWrapper("test ");
 
-  chrome.runtime.onInstalled.addListener(function() {
+  chrome.runtime.onInstalled.addListener(function () {
     console.log("on installed");
   });
 
@@ -236,7 +239,7 @@
     [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.disabled,
     [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled,
     [STORAGE_KEYS.lastSuccessFetchedPage]: null,
-    [STORAGE_KEYS.fetchLastError]: null
+    [STORAGE_KEYS.fetchLastError]: null,
   });
   toggleListenWebRequests(true);
 })();

@@ -17,7 +17,7 @@ const fetchEvents = async (request, pagesCount, onPageLoad, startPage = 0) => {
     }
     const response = await rawResponse.json();
 
-    await onPageLoad(response.events, page, request.url, rawResponse.status);
+    await onPageLoad(response.events, page, newUrl, rawResponse.status);
   }
 };
 

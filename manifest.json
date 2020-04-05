@@ -9,12 +9,10 @@
     "tabs",
     "webRequest",
     "*://cloud.pollstar.com/api/*",
+    "http://localhost/api/*",
     "https://code.getmdl.io/*",
     "*://ip.jsontest.com/*",
-    "storage",
-    {
-      "fileSystem": ["write", "retainEntries", "directory", "requestFileSystem"]
-    }
+    "storage"
   ],
   "content_security_policy": "script-src 'self' https://code.getmdl.io; object-src 'self'",
   "background": {

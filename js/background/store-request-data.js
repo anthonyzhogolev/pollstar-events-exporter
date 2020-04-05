@@ -14,18 +14,16 @@ function getParameterByName(queryString, name) {
 async function storePagesCount(url, headers) {
   const rawResponse = await fetch(url, { headers });
   if (rawResponse.status !== 200) {
-    throw new Error(
-      "Request returns " + rawResponse.status + " on page#" + page
-    );
+    throw new Error("Request returns " + rawResponse.status);
   }
   const response = await rawResponse.json();
   const { totalPages, totalRows } = response;
   return setStorageValue({ totalPages, totalRows });
 }
 
-const storeUrl = async url => setStorageValue({ url });
+const storeUrl = async (url) => setStorageValue({ url });
 
-const storeHeaders = async requestHeaders => {
+const storeHeaders = async (requestHeaders) => {
   const headers = requestHeaders.reduce((acc, header) => {
     acc[header.name] = header.value;
     return acc;
@@ -34,7 +32,6 @@ const storeHeaders = async requestHeaders => {
 };
 
 function toggleListenWebRequests(enable) {
-  console.log("toggleListenWebRequests", enable, new Error().stack);
   if (enable) {
     chrome.webRequest.onSendHeaders.addListener(
       processWebRequest,
@@ -62,34 +59,33 @@ async function setInitialState() {
     [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.disabled,
     [STORAGE_KEYS.downloadStatus]: DOWNLOAD_STATUS.disabled,
     [STORAGE_KEYS.lastSuccessFetchedPage]: null,
-    [STORAGE_KEYS.fetchLastError]: null
+    [STORAGE_KEYS.fetchLastError]: null,
   });
 }
 
 async function storeRequestData(details) {
-  console.log("storeRequestData...");
   const filtersStr = getParameterByName(details.url, "filter");
   const filters = filtersStr
-    ? filtersStr.split(/,(?=\w)/).map(item => item.replace(/(\w*==)/, ""))
+    ? filtersStr.split(/,(?=\w)/).map((item) => item.replace(/(\w*==)/, ""))
     : null;
 
   await setStorageValue({
     filters,
     totalPages: null,
     totalRows: null,
-    [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.waitForTotalRows
+    [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.waitForTotalRows,
   });
 
   toggleListenWebRequests(false);
 
   Promise.all([
     storeUrl(details.url),
-    storeHeaders(details.requestHeaders)
-  ]).then(values => {
-    chrome.storage.sync.get(["headers"], async result => {
+    storeHeaders(details.requestHeaders),
+  ]).then((values) => {
+    chrome.storage.sync.get(["headers"], async (result) => {
       await storePagesCount(details.url, result.headers);
       await setStorageValue({
-        [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.ready
+        [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.ready,
       });
       toggleListenWebRequests(true);
     });
