@@ -83,10 +83,18 @@ async function storeRequestData(details) {
     storeHeaders(details.requestHeaders),
   ]).then((values) => {
     chrome.storage.sync.get(["headers"], async (result) => {
-      await storePagesCount(details.url, result.headers);
-      await setStorageValue({
-        [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.ready,
-      });
+      try {
+        await storePagesCount(details.url, result.headers);
+        await setStorageValue({
+          [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.ready,
+        });
+      } catch (e) {
+        console.error("fail on store request data:", e);
+        await setStorageValue({
+          [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.errorOnRequestInitial,
+        });
+      }
+
       toggleListenWebRequests(true);
     });
   });

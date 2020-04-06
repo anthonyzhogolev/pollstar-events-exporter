@@ -25,6 +25,7 @@ const STORAGE_KEYS = {
 const FETCH_STATUS = {
   disabled: "disabled",
   waitForTotalRows: "waitForTotalRows",
+  errorOnRequestInitial: "errorOnRequestInitial",
   ready: "ready",
   inProgress: "inProgress",
   finish: "finish",
