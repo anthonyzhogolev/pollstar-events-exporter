@@ -96,7 +96,7 @@
       ]);
       await logToDbWrapper(
         `error on page#${lastSuccessFetchedPage + 1}: ${e.message}`,
-        LOG_LEVEL.debug
+        LOG_LEVEL.error
       );
 
       await setStorageValue({
