@@ -1,40 +1,48 @@
-{    
-    "name": "Pollstar Events Exporter",
-    "short_name": "PollstarEventsExporter",
-    "author": "Anthony Zhogolev",
-    "manifest_version": 2,
-    "version": "0.2.0",
-    "description": "Exports Pollstar events list to CSV file",
-    "permissions": [
-        "tabs",
-        "webRequest",
-        "*://cloud.pollstar.com/api/*",
-        "https://code.getmdl.io/*",
-        "*://ip.jsontest.com/*",
-        "storage"
-    ],
-    "content_security_policy": "script-src 'self' https://code.getmdl.io; object-src 'self'",
-    "background": {
-        "scripts": [         
-            "js/constants.js",
-            "js/background/storage-utils.js",
-            "js/background/store-request-data.js",
-            "js/background/event-fetch.js",
-            "js/background/connect-db.js",
-            "js/background/generate-csv-blob.js",
-            "js/background.js"
-        ]
-    },
-    "browser_action": {
-        "default_icon": "icon/64.png",
-        "default_title": "Pollstar Events Exporter",
-        "default_popup": "popup.html"
-    },
-    
-    "icons": {
-        "16": "icon/16.png",
-        "32": "icon/32.png",
-        "64": "icon/64.png",
-        "128": "icon/128.png"
-    }
+{
+  "name": "Pollstar Events Exporter",
+  "short_name": "PollstarEventsExporter",
+  "author": "Anthony Zhogolev",
+  "manifest_version": 2,
+  "version": "0.4.0",
+  "description": "Exports Pollstar events list to CSV file",
+  "permissions": [
+    "tabs",
+    "webRequest",
+    "*://cloud.pollstar.com/api/*",
+    "http://localhost/api/*",
+    "https://code.getmdl.io/*",
+    "*://ip.jsontest.com/*",
+    "storage"
+  ],
+  "content_security_policy": "script-src 'self' https://code.getmdl.io; object-src 'self'",
+  "background": {
+    "scripts": [
+      "js/constants.js",
+
+      "js/background/storage-utils.js",
+      "js/background/store-request-data.js",
+      "js/background/event-fetch.js",
+      "js/background/connect-db.js",
+      "js/background/log-to-db.js",
+      "js/background/generate-csv-blob.js",
+      "js/background.js"
+    ]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+
+  "browser_action": {
+    "default_icon": "icon/64.png",
+    "default_title": "Pollstar Events Exporter",
+    "default_popup": "popup.html"
+  },
+
+  "icons": {
+    "16": "icon/16.png",
+    "32": "icon/32.png",
+    "64": "icon/64.png",
+    "128": "icon/128.png"
+  }
 }

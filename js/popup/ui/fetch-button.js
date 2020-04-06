@@ -17,7 +17,7 @@ async function showFetchButton(status) {
       ".js-error-text-container"
     );
     const { fetchLastError } = await getStorageValues([
-      STORAGE_KEYS.fetchLastError
+      STORAGE_KEYS.fetchLastError,
     ]);
     errorTextContainer.innerHTML(fetchLastError);
   } else {
@@ -37,7 +37,8 @@ async function showFetchButton(status) {
 
   if (
     status === FETCH_STATUS.disabled ||
-    status === FETCH_STATUS.waitForTotalRows
+    status === FETCH_STATUS.waitForTotalRows ||
+    status === FETCH_STATUS.errorOnRequestInitial
   ) {
     console.log("disabling button", status);
     button.setAttribute("disabled", "disabled");
