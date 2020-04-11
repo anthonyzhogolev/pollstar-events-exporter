@@ -12,8 +12,8 @@
 ### Чтобы скачать логи нужну
 
 - Перейти в меню настоек расширения
-  ![Меню настроек расширения](https://raw.githubusercontent.com/anthonyzhogolev/pollstar-events-exporter/master/readme-1.png)
+  ![Меню настроек расширения](https://github.com/anthonyzhogolev/pollstar-events-exporter/blob/master/readme-1.png)
 - Перейтив параметры раширения
-  ![Параметры расширения](https://raw.githubusercontent.com/anthonyzhogolev/pollstar-events-exporter/master/readme-2.png)
+  ![Параметры расширения](https://github.com/anthonyzhogolev/pollstar-events-exporter/blob/master/readme-2.png)
 - Нажать кнопку скачать
-  ![Параметры расширения](https://raw.githubusercontent.com/anthonyzhogolev/pollstar-events-exporter/master/readme-3.png)
+  ![Параметры расширения](https://github.com/anthonyzhogolev/pollstar-events-exporter/blob/master/readme-3.png)
