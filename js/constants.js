@@ -1,6 +1,6 @@
 const ENV = "prod";
 
-const LISTEN_REQUEST_URL_PATTERN_PROD = "*://cloud.pollstar.com/api/*";
+const LISTEN_REQUEST_URL_PATTERN_PROD = "*://cloud.pollstar.com/api/v1/events*";
 const LISTEN_REQUEST_URL_PATTERN_DEBUG = "http://localhost/api/*";
 
 const LISTEN_REQUEST_URL_PATTERN =

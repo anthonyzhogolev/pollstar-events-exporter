@@ -34,7 +34,7 @@
     });
   };
 
-  const savePage = async (events, pageIndex, url, status) => {
+  const savePage = async (events = [], pageIndex, url, status) => {
     let requests = [];
     logToDbWrapper(`${status} ${url} `, LOG_LEVEL.debug);
     connectDB((db) => {

@@ -44,10 +44,15 @@ function toggleListenWebRequests(enable) {
 }
 
 async function processWebRequest(details) {
+  if (!details.url.includes("filter=")) {
+    console.log("there is no events request url");
+    return;
+  }
   if (details.url.includes("&summaryOnly=true")) {
     console.log("summary url canceled...");
     return;
   }
+
   await setInitialState();
   await storeRequestData(details);
   return { cancel: false };
