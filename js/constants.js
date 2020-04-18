@@ -3,10 +3,18 @@ const ENV = "prod";
 const LISTEN_REQUEST_URL_PATTERN_PROD = "*://cloud.pollstar.com/api/v1/events*";
 const LISTEN_REQUEST_URL_PATTERN_DEBUG = "http://localhost/api/*";
 
+const AUTH_URL_PATTERN_PROD = "*://securetoken.googleapis.com/*";
+const AUTH_URL_PATTERN_DEBUG = "http://localhost/auth*";
+
+const DB_VERSION = 4;
+
 const LISTEN_REQUEST_URL_PATTERN =
   ENV === "debug"
     ? LISTEN_REQUEST_URL_PATTERN_DEBUG
     : LISTEN_REQUEST_URL_PATTERN_PROD;
+
+const AUTH_URL_PATTERN =
+  ENV === "debug" ? AUTH_URL_PATTERN_DEBUG : AUTH_URL_PATTERN_PROD;
 
 const STORAGE_KEYS = {
   url: "url",
@@ -20,6 +28,8 @@ const STORAGE_KEYS = {
   lastSuccessFetchedPage: "lastSuccessFetchedPage",
 
   fetchLastError: "fetchLastError",
+  refreshTokenUrl: "refreshTokenUrl",
+  refreshTokenParams: "refreshTokenParams",
 };
 
 const FETCH_STATUS = {
