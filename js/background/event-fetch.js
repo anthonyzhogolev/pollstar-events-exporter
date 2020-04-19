@@ -4,13 +4,14 @@ const fetchEvents = async (request, pagesCount, onPageLoad, startPage = 0) => {
   for (let page = startPage; page < pagesCount; page++) {
     const newUrl = request.url.replace(/(page\=\d*)/, `page=${page}`);
 
-    // const rawResponse =
-    //   page === 2
-    //     ? await fetch(newUrl, { headers: {} })
-    //     : await fetch(newUrl, { headers: request.headers });
     const rawResponse = await fetch(newUrl, { headers: request.headers });
 
     if (rawResponse.status !== 200) {
+      if (rawResponse.status === 403) {
+        throw new ForbiddenStatusError(
+          "Forbidden " + rawResponse.status + " on page#" + page
+        );
+      }
       throw new Error(
         "Request returns " + rawResponse.status + " on page#" + page
       );

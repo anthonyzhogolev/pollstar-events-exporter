@@ -25,12 +25,9 @@
 
   const logToDbWrapper = async (message, level = LOG_LEVEL.debug) => {
     connectDB(async (db) => {
-      try {
-        await logToDb(db, message, level);
-        db.close();
-      } catch (e) {
-        console.error("logToDbException:", e);
-      }
+      await logToDb(db, message, level);
+
+      db.close();
     });
   };
 
@@ -89,7 +86,11 @@
 
       await logToDbWrapper(`export finished`, LOG_LEVEL.debug);
     } catch (e) {
-      console.log("runExport throwed exception:", e);
+      console.log(
+        "runExport throwed exception:",
+        e,
+        e instanceof ForbiddenStatusError
+      );
 
       const { lastSuccessFetchedPage } = await getStorageValues([
         STORAGE_KEYS.lastSuccessFetchedPage,
@@ -99,6 +100,19 @@
         LOG_LEVEL.error
       );
 
+      if (e instanceof ForbiddenStatusError) {
+        await logToDbWrapper(`Begin refresh headers`, LOG_LEVEL.debug);
+
+        const { access_token, token_type } = await requestRefreshToken();
+        console.log("access_token token_type", access_token, token_type);
+        const newAuthHeader = token_type + " " + access_token;
+        await logToDbWrapper(`new Header ${newAuthHeader}`, LOG_LEVEL.debug);
+        console.log(`new Header ${newAuthHeader}`);
+        await replaceAuthHeader(newAuthHeader);
+
+        return retryExport();
+      }
+
       await setStorageValue({
         [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.error,
         [STORAGE_KEYS.fetchLastError]: e.message,
@@ -107,6 +121,7 @@
   };
 
   const retryExport = async () => {
+    console.log("retry export");
     const {
       url,
       headers,
@@ -151,6 +166,17 @@
         LOG_LEVEL.debug
       );
 
+      if (e instanceof ForbiddenStatusError) {
+        await logToDbWrapper(`Begin refresh headers`, LOG_LEVEL.debug);
+
+        const { access_token, token_type } = await requestRefreshToken();
+        console.log("access_token token_type", access_token, token_type);
+        const newAuthHeader = token_type + " " + access_token;
+        await logToDbWrapper(`new Header ${newAuthHeader}`, LOG_LEVEL.debug);
+        console.log(`new Header ${newAuthHeader}`);
+        await replaceAuthHeader(newAuthHeader);
+        return retryExport();
+      }
       await setStorageValue({
         [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.error,
         [STORAGE_KEYS.fetchLastError]: e.message,

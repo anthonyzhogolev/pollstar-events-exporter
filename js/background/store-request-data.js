@@ -89,7 +89,9 @@ async function storeRequestData(details) {
   ]).then((values) => {
     chrome.storage.sync.get(["headers"], async (result) => {
       try {
+        console.log("stored urls and headers");
         await storePagesCount(details.url, result.headers);
+        console.log("stored pages count");
         await setStorageValue({
           [STORAGE_KEYS.fetchStatus]: FETCH_STATUS.ready,
         });
